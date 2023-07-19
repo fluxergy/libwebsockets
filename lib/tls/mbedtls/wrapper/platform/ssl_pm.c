@@ -121,7 +121,6 @@ int ssl_pm_new(SSL *ssl)
     size_t pers_len = sizeof(pers);
 
     int endpoint;
-    int version;
 
     const SSL_METHOD *method = ssl->method;
 
@@ -169,21 +168,6 @@ int ssl_pm_new(SSL *ssl)
 	    lwsl_err("%s: mbedtls_ssl_config_defaults() return -0x%x", __func__, -ret);
         SSL_DEBUG(SSL_PLATFORM_ERROR_LEVEL, "mbedtls_ssl_config_defaults() return -0x%x", -ret);
         goto mbedtls_err2;
-    }
-
-    if (TLS_ANY_VERSION != ssl->version) {
-        if (TLS1_2_VERSION == ssl->version)
-            version = MBEDTLS_SSL_MINOR_VERSION_3;
-        else if (TLS1_1_VERSION == ssl->version)
-            version = 2;
-        else
-            version = 1;
-
-        mbedtls_ssl_conf_max_version(&ssl_pm->conf, MBEDTLS_SSL_MAJOR_VERSION_3, version);
-        mbedtls_ssl_conf_min_version(&ssl_pm->conf, MBEDTLS_SSL_MAJOR_VERSION_3, version);
-    } else {
-        mbedtls_ssl_conf_max_version(&ssl_pm->conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
-        mbedtls_ssl_conf_min_version(&ssl_pm->conf, MBEDTLS_SSL_MAJOR_VERSION_3, 1);
     }
 
     mbedtls_ssl_conf_rng(&ssl_pm->conf, mbedtls_ctr_drbg_random, &ssl_pm->ctr_drbg);
